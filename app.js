@@ -1,9 +1,10 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router()
 const cookieParser = require('cookie-parser');
 const ejs = require('ejs');
-const { default: mongoose } = require('mongoose');
-const PORT = process.env.PORT || 3000;
+
+const PORT = process.env.PORT || 3500;
 
 const app = express()
 
@@ -12,7 +13,7 @@ const adminRoutes = require('./routes/adminRoutes')
 const userRoutes = require('./routes/userRoutes')
 
 //MongoDB Connection
-const dbURI = 'mongodb://localhost:3000/taskmanagerapi3'
+const dbURI = 'mongodb://localhost:27017/taskmanagerapi3'
 mongoose.connect(dbURI)
 
 //Middleware to accept JSON

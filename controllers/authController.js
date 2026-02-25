@@ -1,8 +1,138 @@
+const User = require('../models/user')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
+require('dotenv').config()
 
+const loginPage = (req, res) => {
+    res.render('../views/users/login-page')
+}
 
+const registerPage = (req, res) => {
+    res.render('../views/users/register-page')
+}
 
+const handleUserRegistration = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log(email, password)
 
-const handleUserLogin = (req, res) => {
-    
+        if (!email || !password) {
+            return res.status(402).json({
+                success: false,
+                message: 'Email and password are required'
+            })
+        }
+
+        const emailExists = await User.findOne({email})
+
+        if (emailExists) {
+            return res.status(409).json({
+                success: false,
+                message: 'User with this email address exist!'
+            })
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        const newUser = new User({
+            email: email,
+            password: hashedPassword
+        })
+
+        await newUser.save()
+
+        res.status(200).redirect('/login-page')
+    }
+    catch (error) {
+        console.error(error)
+        res.json({
+            success: false,
+            message: 'An error has occured!'
+        })
+    }
+}
+
+const handleUserLogin = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log(email, password)
+
+        if (!email || !password) {
+            return res.status(402).json({
+                success: false,
+                message: 'Email and password are required'
+            })
+        }
+
+        const loggedUser = await User.findOne({ email })
+        //console.log(loggedUser.roles)  Will throw an error if the user does not exist
+
+        if (!loggedUser) {
+            res.status(404).json({
+                success: false,
+                message: 'No user with this email!'
+            })
+        }
+
+        const match = await bcrypt.compare(password, loggedUser.password)
+
+        if (match) {
+            const accessToken = jwt.sign(
+                { id: loggedUser._id, email: email, roles: loggedUser.roles, fullName: loggedUser.fullName },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: '1h' }
+            )
+
+            const refreshToken = jwt.sign(
+                { id: loggedUser._id, email: email, roles: loggedUser.roles, fullName: loggedUser.fullName },
+                process.env.REFRESH_TOKEN_SECRET,
+                { expiresIn: '1d' }
+            )
+
+            loggedUser.refreshToken = refreshToken
+            await loggedUser.save()
+
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 1000
+            })
+
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000
+            })
+
+            if (loggedUser.roles.includes(5150)) {
+                res.redirect('/admin')
+            } else {
+                res.redirect('/user-home')
+            }
+        } else {
+            return res.status(500).json({
+                success: false,
+                message: 'Invalid email or password'
+            })
+        }
+
+        
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(403).json({
+            success: false,
+            message: 'An error has occurred'
+        })
+    }
+}
+
+module.exports = {
+    loginPage,
+    registerPage,
+    handleUserRegistration,
+    handleUserLogin
 }
