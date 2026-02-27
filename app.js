@@ -6,6 +6,7 @@ const ejs = require('ejs');
 
 const PORT = process.env.PORT || 3500;
 
+require('dotenv').config()
 const app = express()
 
 //Routes imports

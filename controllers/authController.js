@@ -113,7 +113,7 @@ const handleUserLogin = async (req, res) => {
             })
 
             if (loggedUser.roles.includes(5150)) {
-                res.redirect('/admin')
+                res.redirect('/admin-dashboard')
             } else {
                 res.redirect('/user-home')
             }

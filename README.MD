@@ -14,6 +14,9 @@ Bonus Features
 3. Priority levels
 4. Search functionality
 
+Mine - features
+1. Input validation and sanitization
+
 Dependencies
 -express cookie-parser jsonwebtoken dotenv bcrypt ejs parser-??
 
