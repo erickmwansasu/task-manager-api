@@ -1,9 +1,9 @@
 const authorize = (...allowedRoles) => {
     return (req, res, next) => {
-        const roles = req.user.roles
+        const roles = req.user?.roles || []
         console.log('User roles:', roles)
 
-        if (!roles) {
+        if (!roles.length) {
             return res.status(403).json({
                 success: false,
                 message: 'Forbidden!'
@@ -13,9 +13,9 @@ const authorize = (...allowedRoles) => {
         const rolesArray = [...allowedRoles]
         console.log(rolesArray)
 
-        const result = roles.map(role => rolesArray.includes(role)).find(val => val === true)
+        const isAuthorized = roles.some(role => allowedRoles.includes(role))
 
-        if (!result) {
+        if (!isAuthorized) {
             return res.status(403).json({
                 success: false,
                 message: 'Not Authorized!'

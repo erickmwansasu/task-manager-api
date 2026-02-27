@@ -3,6 +3,7 @@ const router = express.Router()
 
 const authController = require('../controllers/authController')
 const userController = require('../controllers/userController')
+const taskController = require('../controllers/taskController')
 
 const roles_list = require('../config/rolesList')
 
@@ -16,7 +17,8 @@ router.post('/user-registration', authController.handleUserRegistration)
 router.post('/user-login', authController.handleUserLogin)
 router.get('/user-logout', authController.handleUserLogout)
 router.get('/user-home', userController.userHome)
-router.get('/user-profile', authenticate, authorize(roles_list.Admin), userController.userProfile)
+router.get('/user-profile', authenticate, userController.userProfile)
+router.get('/user-tasks', authenticate, taskController.allTasks)
 router.get('/refresh', authenticate, authController.refreshToken)
 
 module.exports = router
