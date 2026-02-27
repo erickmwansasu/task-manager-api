@@ -1,7 +1,6 @@
 const User = require('../models/user')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 require('dotenv').config()
 
 const loginPage = (req, res) => {
@@ -69,7 +68,7 @@ const handleUserLogin = async (req, res) => {
         //console.log(loggedUser.roles)  Will throw an error if the user does not exist
 
         if (!loggedUser) {
-            res.status(404).json({
+            return res.status(404).json({
                 success: false,
                 message: 'No user with this email!'
             })
@@ -79,13 +78,19 @@ const handleUserLogin = async (req, res) => {
 
         if (match) {
             const accessToken = jwt.sign(
-                { id: loggedUser._id, email: email, roles: loggedUser.roles, fullName: loggedUser.fullName },
+                {
+                    userInfo: {
+                        email: email,
+                        roles: loggedUser.roles,
+                        fullName: loggedUser.fullName
+                    }
+                },
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: '1h' }
             )
 
             const refreshToken = jwt.sign(
-                { id: loggedUser._id, email: email, roles: loggedUser.roles, fullName: loggedUser.fullName },
+                { email: email },
                 process.env.REFRESH_TOKEN_SECRET,
                 { expiresIn: '1d' }
             )
@@ -130,9 +135,110 @@ const handleUserLogin = async (req, res) => {
     }
 }
 
+const refreshToken = async (req, res) => {
+    const refreshToken = req.cookies.refreshToken
+    console.log('Refresh Token:', refreshToken)
+
+    if (!refreshToken) {
+        return res.status(403).json({
+            success: false,
+            message: 'No Refresh Token'
+        })
+    }
+
+    try {
+        const user = await User.findOne({ refreshToken })
+
+        if (!user) {
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid refresh token'
+            })
+        }
+
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+            if (err) {
+                res.status(404).json({
+                    success: false,
+                    message: 'Invalid or expired refresh token'
+                })
+            }
+        })
+
+        const newAccessToken = jwt.sign(
+            {
+                userInfo: {
+                email: user.email,
+                roles: user.roles,
+                fullName: user.fullName
+            }
+            },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '1h' }
+        )
+
+        res.cookie('accessToken', newAccessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 1000
+        })
+
+        res.redirect('/login-page')
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(403).json({
+            sucess: false,
+            message: 'An error has occured'
+        })
+    }
+}
+
+const handleUserLogout = async (req, res) => {
+    let refreshToken = req.cookies.refreshToken
+
+    if (!refreshToken) {
+        return res.status(403).json({
+            success: false,
+            message: 'Access token has expired'
+        })
+    }
+
+    const user = await User.findOne({refreshToken})
+
+    if (!user) {
+        res.status(403).json({
+            success: false,
+            message: 'No user found'
+        })
+    }
+
+    user.accessToken = ''
+    user.refreshToken = ''
+
+    await user.save()
+
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax'
+    })
+
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax'
+    })
+
+    res.redirect('/login-page')
+}
+
 module.exports = {
     loginPage,
     registerPage,
     handleUserRegistration,
-    handleUserLogin
+    handleUserLogin,
+    refreshToken,
+    handleUserLogout
 }
