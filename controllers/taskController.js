@@ -13,16 +13,49 @@ const allTasks = async (req, res) => {
    }
 }
 
-const newTask = async (req, res) => {
+const createTaskView = (req, res) => {
+    const { fullName, phone } = req.user
+
+    if (fullName === null || phone === null ) {
+        res.redirect('/update-profile-page')
+    } else {
+        res.render('../views/users/create-task')
+    }
+}
+
+const createNewTask = async (req, res) => {
     try {
+        const { taskName, description, dueDate } = req.body
+        const userId = req.user.id
+        const fullName = req.user.fullName
+        const roles = req.user.roles
 
-   }
-   catch (error) {
+        const newTask = new Task({
+            taskName: taskName,
+            description: description,
+            dueDate: dueDate,
+            userId: userId
+        })
 
-   }
+        await newTask.save()
+
+        if (roles.includes(5150)) {
+            res.redirect('/admin-dashboard')
+        } else {
+            res.redirect('/user-home')
+        }
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(402).json({
+            success: false,
+            message: 'An error has occured'
+        })
+    }
 }
 
 module.exports = {
     allTasks,
-    newTask
+    createTaskView,
+    createNewTask
 }

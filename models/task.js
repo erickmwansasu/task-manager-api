@@ -21,6 +21,11 @@ const taskSchema = new mongoose.Schema({
         default: null
     },
 
+    phone: {
+        type: Number,
+        default: null
+    },
+
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

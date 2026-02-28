@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('../../partials/users/head.ejs', { viewCss: 'profile.css' }) %>
+
+<%- include('../../partials/users/nav.ejs') %>
+
+<body>
+    <h3>Complete Your Details</h3><br><br>
+    <div class="update-details-container">
+        <form action="/update-profile" method="POST">
+
+            <label for="">Full Name:</label>
+            <input type="text" name="fullName" id="fullName"><br><br>
+
+            <label for="">Department:</label>
+            <input type="text" name="department" id="department"><br><br>
+
+            <label for="">ID:</label>
+            <input type="text" name="empId" id="empId"><br><br>
+
+            <label for="">Phone:</label>
+            <input type="tel" name="phone" id="phone"><br><br>
+
+            <button>Update</button><br><br>
+        </form>
+    </div>
+    <a href="/user-profile">Profile</a><br><br>
+    <a href="/user-logout">Log out</a>
+</body>
+</html>

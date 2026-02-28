@@ -82,7 +82,9 @@ const handleUserLogin = async (req, res) => {
                     userInfo: {
                         email: email,
                         roles: loggedUser.roles,
-                        fullName: loggedUser.fullName
+                        fullName: loggedUser.fullName,
+                        phone: loggedUser.phone,
+                        id: loggedUser._id
                     }
                 },
                 process.env.ACCESS_TOKEN_SECRET,
