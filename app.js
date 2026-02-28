@@ -3,10 +3,11 @@ const mongoose = require('mongoose');
 const router = express.Router()
 const cookieParser = require('cookie-parser');
 const ejs = require('ejs');
-
-const PORT = process.env.PORT || 3500;
+const methodOverride = require('method-override');
 
 require('dotenv').config()
+const PORT = process.env.PORT;
+
 const app = express()
 
 //Routes imports
@@ -19,6 +20,7 @@ mongoose.connect(dbURI)
 
 //Middleware to accept JSON
 app.use(express.json())
+app.use(methodOverride('_method'))
 
 //Middleware to serve static files
 app.use(express.static('public'))

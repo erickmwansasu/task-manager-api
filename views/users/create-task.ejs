@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('../../partials/users/head.ejs', { viewCss: 'tasks.css' }) %>
+
+<%- include('../../partials/users/nav.ejs') %>
+
+<div class="form-container">
+    <form action="/create-task" method="POST" class="create-form">
+        <h3>New Task</h3>
+
+        <span for="">Task Name</span>
+        <input type="text" class="" name="taskName"><br><br>
+
+        <span for="">Description</span>
+        <input type="text" class="description" name="description"><br><br>
+
+        <span for="">Due Date</span>
+        <input type="datetime-local" class="duedate" name="dueDate"><br><br>
+
+        <button>Add Task</button>
+    </form>
+</div>
+
+<%- include('../../partials/users/footer.ejs') %>
+
+<body>
+    
+</body>
+</html>

@@ -16,6 +16,8 @@ Bonus Features
 
 Mine - features
 1. Input validation and sanitization
+2. Permission-based access
+3. Two factor auth
 
 Dependencies
 -express cookie-parser jsonwebtoken dotenv bcrypt ejs parser-??

@@ -16,6 +16,16 @@ const userSchema = new mongoose.Schema({
         default: null
     },
 
+    department: {
+        type: String,
+        default: null
+    },
+
+    empId: {
+        type: Number,
+        default: null
+    },
+
     phone: {
         type: Number,
         default: null

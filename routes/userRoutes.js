@@ -8,7 +8,7 @@ const taskController = require('../controllers/taskController')
 const roles_list = require('../config/rolesList')
 
 const authenticate = require('../middleware/authentication');
-const authorize = require('../middleware/authorization');
+//const authorize = require('../middleware/authorization');     Not sure if I'll use it on user routes
 
 router.get('/', authController.loginPage)
 router.get('/login-page', authController.loginPage)
@@ -18,7 +18,11 @@ router.post('/user-login', authController.handleUserLogin)
 router.get('/user-logout', authController.handleUserLogout)
 router.get('/user-home', userController.userHome)
 router.get('/user-profile', authenticate, userController.userProfile)
+router.get('/update-profile-page', authenticate, userController.updateProfilePage)
+router.post('/update-profile', authenticate, userController.updateProfile)
+router.get('/create-task-view', authenticate, taskController.createTaskView)
+router.post('/create-task', authenticate, taskController.createNewTask)
 router.get('/user-tasks', authenticate, taskController.allTasks)
-router.get('/refresh', authenticate, authController.refreshToken)
+router.get('/refresh', authController.refreshToken)
 
 module.exports = router
