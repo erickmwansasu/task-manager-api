@@ -1,0 +1,12 @@
+Even in standard JavaScript, you can get some of that "TypeScript magic" (autocomplete) by adding a simple JSDoc comment at the top of your middleware.
+This helps your editor understand what req.user looks like:
+
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
+
+ //Question
+ Pro-Tip for Interviews: If asked why you chose CommonJS, just say: "It's the native, reliable standard for Node.js, 
+ and I'm comfortable switching to ESM when the project requires modern tree-shaking or frontend code-sharing."

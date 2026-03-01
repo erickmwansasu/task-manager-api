@@ -1,15 +1,67 @@
 const Task = require('../models/task')
-const { all } = require('../routes/adminRoutes')
+const User = require('../models/user')
+
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
+
+//Helper function to format date
+const formatDate = (date) => {
+    return new Date(date)
+    .toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    }).replace('am', 'AM').replace('pm', 'PM')
+}
 
 const allTasks = async (req, res) => {
    try {
     const roles = req.user.roles
-    console.log(roles)
-    const allTasks = await Task.find().sort({ createdAt: -1 })
-    console.log('All Tasks', allTasks)
+    console.log('User roles:', roles)
+
+    const userId = req.user.id
+    console.log('User ID:', userId)
+
+    const user = await User.findById({ _id: userId })
+    console.log(user)
+    const userName = user.fullName
+    console.log('Logged user is', userName)
+
+    if (roles.includes(5150)) {
+        const allTasks = await Task.find().sort({ createdAt: -1 })
+
+        const formatedTasks = allTasks.map(task => ({
+            ...task.toObject(),
+            dueDateFormatted: formatDate(task.dueDate)
+        }))
+
+        console.log(formatedTasks)
+
+        res.render('../views/admin/all-tasks', { allTasks: formatedTasks })
+    } else {
+        const allTasks = await Task.find({ userId }).sort({ createdAt: -1 })
+
+        const formatedTasks = allTasks.map(task => ({
+            ...task.toObject(),
+            dueDateFormatted: formatDate(task.dueDate)
+        }))
+
+        res.render('../views/users/user-tasks', { allTasks: formatedTasks })
+    }
+
    }
    catch (error) {
-
+    console.error(error)
+    res.status(403).json({
+        succes: false,
+        message: 'An error has occured!'
+    })
    }
 }
 
@@ -34,8 +86,18 @@ const createNewTask = async (req, res) => {
             taskName: taskName,
             description: description,
             dueDate: dueDate,
-            userId: userId
+            userId: userId,
+            userName: fullName
         })
+
+        const taskExists = await Task.findOne({ taskName })
+
+        if (taskExists) {
+            return res.status(409).json({
+                success: false,
+                message: 'Task already exists!'
+            })
+        }
 
         await newTask.save()
 
@@ -54,8 +116,13 @@ const createNewTask = async (req, res) => {
     }
 }
 
+const deleteTask = async (req, res) => {
+    co
+}
+
 module.exports = {
     allTasks,
     createTaskView,
-    createNewTask
+    createNewTask,
+    deleteTask
 }

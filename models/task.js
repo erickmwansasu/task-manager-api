@@ -16,13 +16,8 @@ const taskSchema = new mongoose.Schema({
         required: true
     },
 
-    UserName: {
+    userName: {
         type: String,
-        default: null
-    },
-
-    phone: {
-        type: Number,
         default: null
     },
 

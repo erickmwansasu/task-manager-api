@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('../../partials/users/head.ejs', { viewCss: 'user-tasks.css' }) %>
+
+<body>
+
+    <%- include('../../partials/users/nav.ejs') %>
+
+    <div class="tasks-container">
+        <% if (allTasks.length > 0) { %>
+            <h3>All Tasks:<%= allTasks.length %></h3>
+           <% allTasks.forEach(task => { %>
+
+                <div class="task-div">
+                    <div class="task-field">
+                        <div class="task-label">Task Name:</div>
+                        <div class="task-value"> <%= task.taskName %> </div>
+                    </div>
+
+                    <div class="task-field">
+                        <div class="task-label">Author:</div>
+                        <div class="task-value"> <%= task.userName %> </div>
+                    </div>
+                
+                    <div class="task-field">
+                        <div class="task-label">Due Date:</div>
+                        <div class="task-value"> <%= task.dueDateFormatted %> </div>
+                    </div>
+                
+                    <a href="/task-details/<%= task._id %>">
+                        <div class="action">Action</div>
+                    </a><br>
+                </div>
+                
+          <% });
+       } else { %>
+        <p>You haven't created any task</p>
+      <% } %>
+    </div>
+
+    <a href="/user-profile">Profile</a><br><br>
+    <a href="/user-logout">Log out</a>
+</body>
+</html>
