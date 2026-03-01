@@ -1,7 +1,10 @@
 const User = require('../models/user')
 
-const adminDashboard = (req, res) => {
-    res.render('../views/admin/home')
+const adminDashboard = async (req, res) => {
+    const email = req.user.email
+    const userDetails = await User.findOne({ email })
+
+    res.render('../views/admin/home', { userDetails })
 }
 
 const getAllUsers = async (req, res) => {

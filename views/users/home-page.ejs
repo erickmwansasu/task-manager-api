@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('../../partials/users/head.ejs') %>
+<%- include('../../partials/users/head.ejs', { viewCss: 'user-home.css' }) %>
 
 <%- include('../../partials/users/nav.ejs') %>
 
 <body>
-    <h3>Phew! 1 P.M</h3>
+    <% const greetingMessage = ['Welcome back,', 'Ahoy,', 'Nice to see you again,', 'Guess who is back,', 'Clouds are on the Sky,',
+        'Are you even authorized?,'
+    ]
+        let message = ''
+        const random = Math.floor(Math.random()*greetingMessage.length)
 
+        const selected = greetingMessage[random]
+        message += selected
+    %>
+    <div class="greeting-message">
+        <div class="message"><%= message %></div>
+        <div><h4><%= userDetails.fullName %></h4></div>
+    </div>
     <a href="/user-profile">Profile</a><br><br>
     <a href="/user-logout">Log out</a>
 </body>

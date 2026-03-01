@@ -1,8 +1,11 @@
 const Task = require('../models/task')
 const User = require('../models/user')
 
-const userHome = (req, res) => {
-    res.render('../views/users/home-page')
+const userHome = async (req, res) => {
+    const email = req.user.email
+    const userDetails = await User.findOne({ email })
+
+    res.render('../views/users/home-page', { userDetails })
 }
 
 const userProfile = async (req, res) => {
@@ -43,6 +46,10 @@ const updateProfile = async (req, res) => {
             success: false,
             message: 'No user found'
         })
+    }
+
+    if (updateUser.roles.includes(5150)) {
+        res.redirect('/admin-dashboard')
     } else {
         res.redirect('/user-profile')
     }
