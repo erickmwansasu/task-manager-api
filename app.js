@@ -1,18 +1,18 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const router = express.Router();
 const cookieParser = require("cookie-parser");
 const ejs = require("ejs");
 const methodOverride = require("method-override");
 
 require("dotenv").config();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3500;
 
 const app = express();
 
 //MongoDB Connection
-const dbURI = "mongodb://localhost:27017/taskmanagerapi3";
+const dbURI = process.env.dbURI
 mongoose.connect(dbURI);
+//.then()
 
 //Middleware to accept JSON
 app.use(express.json());
