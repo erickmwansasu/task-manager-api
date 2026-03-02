@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('../../partials/users/head.ejs', { viewCss: 'user-home.css' }) %>
+<%- include('../../partials/users/head.ejs', { viewCss: '/css/user-home.css' }) %>
 
 <%- include('../../partials/users/nav.ejs') %>
 
@@ -18,8 +18,8 @@
     <div class="greeting-message">
         <div class="message"><%= message %></div>
         <div><h4><%= userDetails.fullName %></h4></div>
-    </div>
-    <a href="/user-profile">Profile</a><br><br>
+    </div><br>
+  
     <a href="/user-logout">Log out</a>
 </body>
 </html>

@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 3500;
 const app = express();
 
 //MongoDB Connection
-const dbURI = process.env.dbURI
-mongoose.connect(dbURI);
+const connection = process.env.dbURI
+mongoose.connect(connection);
 //.then()
 
 //Middleware to accept JSON

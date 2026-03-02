@@ -1,4 +1,4 @@
-A REST API for managing tasks with user authentication (1 - 2 weeks)
+A REST API for managing tasks with user authentication
 
 Features
 1. User regisrtation & login (JWT auth)
