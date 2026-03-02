@@ -23,6 +23,8 @@ router.post('/update-profile', authenticate, userController.updateProfile)
 router.get('/create-task-view', authenticate, taskController.createTaskView)
 router.post('/create-task', authenticate, taskController.createNewTask)
 router.get('/user-tasks', authenticate, taskController.allTasks)
+router.get('/user-task-details/:id', authenticate, taskController.taskDetails)
+router.get('/user-task-delete/:id', authenticate, taskController.deleteTask)
 router.get('/refresh', authController.refreshToken)
 
 module.exports = router

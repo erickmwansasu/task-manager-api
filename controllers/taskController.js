@@ -36,23 +36,23 @@ const allTasks = async (req, res) => {
     if (roles.includes(5150)) {
         const allTasks = await Task.find().sort({ createdAt: -1 })
 
-        const formatedTasks = allTasks.map(task => ({
+        const formattedTasks = allTasks.map(task => ({
             ...task.toObject(),
             dueDateFormatted: formatDate(task.dueDate)
         }))
 
-        console.log(formatedTasks)
+        console.log(formattedTasks)
 
-        res.render('../views/admin/all-tasks', { allTasks: formatedTasks })
+        res.render('../views/admin/all-tasks', { allTasks: formattedTasks })
     } else {
         const allTasks = await Task.find({ userId }).sort({ createdAt: -1 })
 
-        const formatedTasks = allTasks.map(task => ({
+        const formattedTasks = allTasks.map(task => ({
             ...task.toObject(),
             dueDateFormatted: formatDate(task.dueDate)
         }))
 
-        res.render('../views/users/user-tasks', { allTasks: formatedTasks })
+        res.render('../views/users/user-tasks', { allTasks: formattedTasks })
     }
 
    }
@@ -116,13 +116,37 @@ const createNewTask = async (req, res) => {
     }
 }
 
+const taskDetails = async (req, res) => {
+    const id = req.params.id
+    const roles = req.user.roles
+    console.log('Logged user roles:', roles)
+    const task = await Task.findOne({ _id: id })
+    console.log(task)
+    
+    if (roles.includes(5150)) {
+        res.render('../views/admin/task-details', { task })
+    } else {
+        res.render('../views/users/task-details', { task })
+    }
+}
+
 const deleteTask = async (req, res) => {
-    co
+    const id = req.params.id
+    const roles = req.user.roles
+
+    const task = await Task.findByIdAndDelete({ _id: id })
+
+    if (roles.includes(5150)) {
+        res.redirect('/all-tasks')
+    } else {
+        res.redirect('/user-tasks')
+    }
 }
 
 module.exports = {
     allTasks,
     createTaskView,
     createNewTask,
+    taskDetails,
     deleteTask
 }
