@@ -1,0 +1,30 @@
+.task-details {
+    margin-left: 10px;
+}
+
+.task-name span {
+    color: slategray;
+}
+
+.task-details p {
+    margin-top: 10px;
+}
+
+.update {
+    text-decoration: none;
+    background-color: rgb(51, 51, 179);
+    padding: 8px 15px;
+    border-radius: 2px;
+    font-size: 12px;
+    color: white
+}
+
+.delete {
+    text-decoration: none;
+    background-color: rgb(250, 17, 17);
+    padding: 8px 15px;
+    border-radius: 2px;
+    font-size: 12px;
+    color: white;
+    margin-left: 10px;
+}

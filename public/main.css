@@ -32,9 +32,25 @@ body {
     font-size: 13px;
 }
 
+.navlinks a:hover {
+    font-size: 14px;
+    color: slategray;
+    transition: ease-in-out .2s;
+}
+
 .profile {
+    margin-left: auto;
+}
+
+.profile a {
+    text-decoration: none;
     color: white;
-    flex-grow: 1;
+}
+
+.profile a:hover {
+    font-size: 14px;
+    color: slategray;
+    transition: ease-in-out .2s;
 }
 
 footer {

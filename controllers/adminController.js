@@ -7,6 +7,13 @@ const adminDashboard = async (req, res) => {
     res.render('../views/admin/home', { userDetails })
 }
 
+const adminProfile = async (req, res) => {
+    const email = req.user.email
+    const userDetails = await User.findOne({ email })
+
+    res.render('../views/admin/profile', { userDetails })
+}
+
 const getAllUsers = async (req, res) => {
     try {
         const allUsers = await User.find().sort({ createdAt: -1 })
@@ -33,6 +40,7 @@ const topics = (req, res) => {
 
 module.exports = {
     adminDashboard,
+    adminProfile,
     getAllUsers,
     additionalFeatures,
     topics
