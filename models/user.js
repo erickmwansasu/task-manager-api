@@ -3,7 +3,10 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        lowercase: true,    //Normalize before saving
+        trim: true  //Strips accidental white space
     },
 
     password: {
@@ -27,14 +30,14 @@ const userSchema = new mongoose.Schema({
     },
 
     phone: {
-        type: Number,
+        type: String,
         default: null
     },
 
     roles: {
         type: [Number],
         default: [2001],
-        enum: [5150, 1984, 2001]
+        enum: [5150, 1984, 2001, 5050, 5005]
     },
 
     refreshToken: {

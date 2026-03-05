@@ -1,5 +1,5 @@
 const Task = require('../models/task')
-const User = require('../models/user')
+const mongoose = require('mongoose');
 
 /**
  * @param {import('express').Request} req
@@ -7,80 +7,78 @@ const User = require('../models/user')
  * @param {import('express').NextFunction} next
  */
 
-//Helper function to format date
-const formatDate = (date) => {
-    return new Date(date)
-    .toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    }).replace('am', 'AM').replace('pm', 'PM')
-}
-
-const allTasks = async (req, res) => {
+const getTasks = async (req, res) => {
    try {
     const roles = req.user.roles
-    console.log('User roles:', roles)
-
     const userId = req.user.id
-    console.log('User ID:', userId)
 
-    const user = await User.findById({ _id: userId })
-    console.log(user)
-    const userName = user.fullName
-    console.log('Logged user is', userName)
+    const allowedRoles = [ 5150, 5050, 5005 ]
+    const isAuthorized = roles.some(role => allowedRoles.includes(role))
 
-    if (roles.includes(5150)) {
+    if (isAuthorized) {
         const allTasks = await Task.find().sort({ createdAt: -1 })
 
-        const formattedTasks = allTasks.map(task => ({
-            ...task.toObject(),
-            dueDateFormatted: formatDate(task.dueDate)
-        }))
-
-        console.log(formattedTasks)
-
-        res.render('../views/admin/all-tasks', { allTasks: formattedTasks })
+        return res.status(200).json({
+            success: true,
+            message: 'Found all tasks',
+            data: allTasks
+        })
     } else {
         const allTasks = await Task.find({ userId }).sort({ createdAt: -1 })
 
-        const formattedTasks = allTasks.map(task => ({
-            ...task.toObject(),
-            dueDateFormatted: formatDate(task.dueDate)
-        }))
+        if (!allTasks.length) {
+            return res.status(200).json({
+                success: true,
+                message: 'You have no tasks yet'
+            })
+        }
 
-        res.render('../views/users/user-tasks', { allTasks: formattedTasks })
+        return res.status(200).json({
+            success: true,
+            message: 'Your tasks:',
+            data: allTasks
+        })
     }
-
    }
    catch (error) {
     console.error(error)
-    res.status(403).json({
-        succes: false,
+    return res.status(500).json({
+        success: false,
         message: 'An error has occured!'
     })
    }
 }
 
-const createTaskView = (req, res) => {
-    const { fullName, phone } = req.user
-
-    if (fullName === null || phone === null ) {
-        res.redirect('/update-profile-page')
-    } else {
-        res.render('../views/users/create-task')
-    }
-}
-
-const createNewTask = async (req, res) => {
+const createTask = async (req, res) => {
     try {
         const { taskName, description, dueDate } = req.body
-        const userId = req.user.id
-        const fullName = req.user.fullName
-        const roles = req.user.roles
+        const { id: userId, fullName, roles } = req.user
+
+        if (!taskName || !description || !dueDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'Fill all the fields'
+            })
+        }
+
+        const allowedRoles = [ 5050, 5005 ]
+        const isAuthorized = roles.some(role => allowedRoles.includes(role))
+
+        if (!isAuthorized) {
+            return res.status(403).json({
+                success: false,
+                message: 'Not authorized!'
+            })
+        }
+
+        const taskExists = await Task.findOne({ taskName, userId })
+
+        if (taskExists) {
+            return res.status(409).json({
+                success: false,
+                message: 'You already have a task with this name!'
+            })
+        }
 
         const newTask = new Task({
             taskName: taskName,
@@ -89,64 +87,116 @@ const createNewTask = async (req, res) => {
             userId: userId,
             userName: fullName
         })
-
-        const taskExists = await Task.findOne({ taskName })
-
-        if (taskExists) {
-            return res.status(409).json({
-                success: false,
-                message: 'Task already exists!'
-            })
-        }
-
         await newTask.save()
 
-        if (roles.includes(5150)) {
-            res.redirect('/admin-dashboard')
-        } else {
-            res.redirect('/user-home')
-        }
+        return res.status(201).json({
+            success: true,
+            message: 'Task created successfully',
+            data: newTask
+        })
     }
     catch (error) {
         console.error(error)
-        return res.status(402).json({
+        return res.status(500).json({
             success: false,
             message: 'An error has occured'
         })
     }
 }
 
-const taskDetails = async (req, res) => {
-    const id = req.params.id
-    const roles = req.user.roles
-    console.log('Logged user roles:', roles)
-    const task = await Task.findOne({ _id: id })
-    console.log(task)
-    
-    if (roles.includes(5150)) {
-        res.render('../views/admin/task-details', { task })
-    } else {
-        res.render('../views/users/task-details', { task })
+const getTaskById = async (req, res) => {
+    try {
+        const id = req.params.id
+        const roles = req.user.roles
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid task ID'
+            })
+        }
+
+        const task = await Task.findOne({ _id: id })
+
+        if (!task) {
+            return res.status(404).json({
+                success: false,
+                message: 'No task found'
+            })
+        }
+
+        if (req.user.id !== task.userId.toString() && !roles.includes(5150)) {
+            return res.status(403).json({
+                success: false,
+                message: 'You do not have permission to view this task',
+            })
+        }
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Task found',
+            data: task
+        })
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            success: false,
+            message: 'An error has occured'
+        })
     }
 }
 
 const deleteTask = async (req, res) => {
-    const id = req.params.id
-    const roles = req.user.roles
+    try {
+        const id = req.params.id
+        const roles = req.user.roles
 
-    const task = await Task.findByIdAndDelete({ _id: id })
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid task ID'
+            })
+        }
 
-    if (roles.includes(5150)) {
-        res.redirect('/all-tasks')
-    } else {
-        res.redirect('/user-tasks')
+        const allowedRoles = [ 5050, 5005 ]
+        const isAuthorized = roles.some(role => allowedRoles.includes(role))
+
+        if (!isAuthorized) {
+            return res.status(403).json({
+                success: false,
+                message: 'Cannot perform this action'
+            })
+        }
+
+        const task = await Task.findById({ _id: id })
+
+        if (!task) {
+            return res.status(404).json({
+                success: false,
+                message: 'No task found'
+            })
+        }
+
+        await Task.findByIdAndDelete(id)
+
+        return res.status(200).json({
+            success: true,
+            message: 'Task successfully deleted'
+        })
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            success: false,
+            message: 'An error has occured'
+        })
     }
 }
 
 module.exports = {
-    allTasks,
-    createTaskView,
-    createNewTask,
-    taskDetails,
+    getTasks,
+    createTask,
+    getTaskById,
     deleteTask
 }

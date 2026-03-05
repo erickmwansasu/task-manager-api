@@ -2,6 +2,14 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 const authenticate = (req, res, next) => {
+    const publicPaths = ['/register', '/login', '/refreshToken']
+
+    const isPublic = publicPaths.some(path => req.path.endsWith(path))
+
+    if(isPublic) {
+        return next()
+    }
+
     const accessToken = req.cookies.accessToken
 
     if (!accessToken) {
@@ -15,21 +23,16 @@ const authenticate = (req, res, next) => {
         const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
 
         req.user = decoded.userInfo
-        console.log('User:', req.user)
 
         next()
     }
     catch (error) {
         console.error(error)
-        return res.status(500).json({
+        return res.status(403).json({
             success: false,
-            message: 'Server side error!'
+            message: 'Invalid or expired token!'
         })
     }
 }
-
-//Check for roles in the request
-//try catch
-//Sleep now buddy - merge first thing in the morning
 
 module.exports = authenticate

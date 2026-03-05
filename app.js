@@ -1,43 +1,42 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cookieParser = require("cookie-parser");
-const ejs = require("ejs");
-const methodOverride = require("method-override");
+const express = require('express')
+const mongoose = require('mongoose')
+const cookieParser = require('cookie-parser')
 
-require("dotenv").config();
+require('dotenv').config()
+
+const app = express()
 const PORT = process.env.PORT || 3500;
 
-const app = express();
-
 //MongoDB Connection
-const connection = process.env.dbURI
-mongoose.connect(connection);
-//.then()
+const dbURI = process.env.MONGO_URI
+mongoose.connect(dbURI)
+  .then( () => console.log('Connected successfully'))
+  .catch( (err) => {
+    console.error('MongoDB connection failed:', err.message)
+    process.exit(1) //Stops the server if DB is unreachable
+  })
 
-//Middleware to accept JSON
-app.use(express.json());
-app.use(methodOverride("_method"));
+app.use(express.json())
+app.use(cookieParser())
 
-//Middleware to serve static files
-app.use(express.static("public"));
+const adminRoutes = require('./routes/adminRoutes')
+const authRoutes = require('./routes/authRoutes')
+const taskRoutes = require('./routes/taskRoutes')
+const userRoutes = require('./routes/userRoutes')
 
-//Middleware to accept/handle form data
-app.use(express.urlencoded({ extended: true }));
+const authorize = require('./middleware/authorization')
+const authenticate = require('./middleware/authentication')
 
-//Middleware for cookies
-app.use(cookieParser());
+const rolesList = require('./config/rolesList')
 
-//Set view engine
-app.set("view engine", "ejs");
+app.use(authenticate)
 
-//Routes imports
-const adminRoutes = require("./routes/adminRoutes");
-const userRoutes = require("./routes/userRoutes");
+app.use('/api/v1', authRoutes)
+app.use('/api/v1', taskRoutes)
+app.use('/api/v1', userRoutes)
 
-//Routes
-app.use(adminRoutes);
-app.use(userRoutes);
+app.use('/api/v1', authorize(rolesList.admin), adminRoutes)
 
 app.listen(PORT, () => {
-  console.log(`Server is running on PORT ${PORT}.`);
-});
+  console.log(`Server is running on PORT ${PORT}.`)
+})

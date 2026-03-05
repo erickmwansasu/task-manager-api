@@ -1,22 +1,11 @@
 const express = require('express');
 const router = express.Router()
 
-const authController = require('../controllers/authController')
 const adminController = require('../controllers/adminController')
-const taskController = require('../controllers/taskController')
 
-const authorize = require('../middleware/authorization');
-const authenticate = require('../middleware/authentication');
-
-router.get('/admin-dashboard', authenticate, adminController.adminDashboard)
-router.get('/all-users', adminController.getAllUsers)
-router.get('/user-suggestions', adminController.additionalFeatures)
-router.get('/all-tasks', authenticate, taskController.allTasks)
-router.get('/task-details/:id', authenticate, taskController.taskDetails)
-router.get('/update-task/:id', authenticate, taskController.deleteTask)
-router.get('/delete-task/:id', authenticate, taskController.deleteTask)
-router.get('/admin-profile', authenticate, adminController.adminProfile)
-router.get('/topics', adminController.topics)
-router.get('/logout', authController.handleUserLogout)
+router.get('/getUsers', adminController.getUsers)
+router.post('/createUser', adminController.createUser)
+router.put('/updateUser/:id', adminController.updateUser)
+router.delete('/deleteUser/:id', adminController.deleteUser)
 
 module.exports = router

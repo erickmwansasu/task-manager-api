@@ -1,63 +1,59 @@
+const mongoose = require('mongoose')
 const Task = require('../models/task')
 const User = require('../models/user')
 
-const userHome = async (req, res) => {
-    const email = req.user.email
-    const userDetails = await User.findOne({ email })
-
-    res.render('../views/users/home-page', { userDetails })
-}
-
-const userProfile = async (req, res) => {
-    const email = req.user.email
-    console.log('Logged user is:', email)
-
-    const user = await User.findOne({ email })
-
-    res.render('../views/users/user-profile', { user })
-}
-
-const updateProfilePage = (req, res) => {
-    res.render('../views/users/update-profile')
-}
+//Deleted userHome controller that rendersuser Home Page - as you said its frontend work
+//Did the same for userProfile controller
 
 const updateProfile = async (req, res) => {
-    const { fullName, department, empId, phone } = req.body
-    const id = req.user.id
-    console.log('Logged user:', id)
+    try {
+        const { fullName, department, empId, phone } = req.body
+        const id = req.user.id
 
-    const user = await User.findOne({ id })
-    console.log(user)
+        if (fullName === '' || department === '' || phone === '') {
+            return res.status(400).json({
+                success: false,
+                message: 'Fill all details'
+            })
+        }
 
-    const updateUser = await User.findByIdAndUpdate(id,
-        { fullName: fullName, department: department, empId: empId, phone: phone },
-        { new: true, runValidators: true }
-    )
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid user ID'
+            })
+        }
 
-    if (fullName === '' || department === '' || phone === '') {
-        res.status(403).json({
+        const user = await User.findById(id)
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'No user found'
+            })
+        }
+
+        const updateUser = await User.findByIdAndUpdate(id,
+            { fullName: fullName, department: department, empId: empId, phone: phone },
+            { new: true, runValidators: true }
+        ).select('-password')
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Profile updated',
+            data: updateUser
+        })
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(500).json({
             success: false,
-            message: 'Fill all details'
+            message: 'An error has occured!'
         })
     }
 
-    if (!updateUser) {
-        return res.status(404).json({
-            success: false,
-            message: 'No user found'
-        })
-    }
-
-    if (updateUser.roles.includes(5150)) {
-        res.redirect('/admin-dashboard')
-    } else {
-        res.redirect('/user-profile')
-    }
 }
 
 module.exports = {
-    userHome,
-    userProfile,
-    updateProfilePage,
     updateProfile
 }
