@@ -17,6 +17,13 @@ const updateProfile = async (req, res) => {
             })
         }
 
+        if (!fullName || !department || !phone) {
+            return res.status(400).json({
+                success: false,
+                message: 'Fill all details'
+            })
+        }
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 success: false,

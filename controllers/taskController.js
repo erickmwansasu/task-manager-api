@@ -51,8 +51,15 @@ const getTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
     try {
+        const { id: userId, fullName, department, roles } = req.user
         const { taskName, description, dueDate } = req.body
-        const { id: userId, fullName, roles } = req.user
+
+        if (!fullName || !department) {
+            return res.status(400).json({
+                success: false,
+                message: 'Complete your profile first!'
+            })
+        }
 
         if (!taskName || !description || !dueDate) {
             return res.status(400).json({
@@ -67,7 +74,7 @@ const createTask = async (req, res) => {
         if (!isAuthorized) {
             return res.status(403).json({
                 success: false,
-                message: 'Not authorized!'
+                message: 'Not authorized to create a task!'
             })
         }
 
@@ -84,6 +91,7 @@ const createTask = async (req, res) => {
             taskName: taskName,
             description: description,
             dueDate: dueDate,
+            department: department,
             userId: userId,
             userName: fullName
         })
@@ -147,6 +155,97 @@ const getTaskById = async (req, res) => {
     }
 }
 
+const markComplete = async (req, res) => {
+    try {
+        const taskId = req.params.id
+        const { id } = req.user
+         
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid task ID'
+            })
+        }
+
+
+        const task = await Task.findById(taskId)
+
+        if (!task) {
+            return res.status(404).json({
+                succes: false,
+                message: 'No task found'
+            })
+        }
+
+        if (id !== task.userId.toString()) {
+            return res.status(401).json({
+                success: false,
+                message: 'You do not permission do update this task'
+            })
+        }
+
+        task.completed = true
+        await task.save()
+
+        return res.status(200).json({
+            success: true,
+            message: 'Task marked complete'
+        })
+    }
+    catch (error) {
+        console.error
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
+    }
+}
+
+const markIncomplete = async (req, res) => {
+    try {
+        const taskId = req.params.id
+        const { id } = req.user
+         
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid task ID'
+            })
+        }
+
+        const task = await Task.findById(taskId)
+
+        if (!task) {
+            return res.status(404).json({
+                succes: false,
+                message: 'No task found'
+            })
+        }
+
+        if (id !== task.userId.toString()) {
+            return res.status(401).json({
+                success: false,
+                message: 'You do not permission do update this task'
+            })
+        }
+
+        task.completed = false
+        await task.save()
+
+        return res.status(200).json({
+            success: true,
+            message: 'Task marked incomplete'
+        })
+    }
+    catch (error) {
+        console.error
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
+    }
+}
+
 const deleteTask = async (req, res) => {
     try {
         const id = req.params.id
@@ -198,5 +297,7 @@ module.exports = {
     getTasks,
     createTask,
     getTaskById,
+    markComplete,
+    markIncomplete,
     deleteTask
 }

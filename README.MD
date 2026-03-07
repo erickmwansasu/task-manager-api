@@ -1,9 +1,9 @@
 A REST API for managing tasks with user authentication
 
 Features
-1. User regisrtation & login (JWT auth)
-2. Create, read, update, delete tasks
-3. Each user only sees their own tasks
+1. User regisrtation & login (JWT auth) y
+2. Create, read, update, delete tasks y
+3. Each user only sees their own tasks y
 4. Mark tasks as complete or incomplete
 5. Filter tasks (completed, pending, all)
 
@@ -23,4 +23,4 @@ Dependencies
 -express cookie-parser jsonwebtoken dotenv bcrypt ejs parser-??
 
 1. npm init-y
-2. npm i express bcrypt cookie-parser dotenv ejs jsonwebtoken
+2. npm i express bcrypt cookie-parser dotenv jsonwebtoken mongoose 

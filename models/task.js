@@ -16,9 +16,26 @@ const taskSchema = new mongoose.Schema({
         required: true
     },
 
+    department: {
+        type: String,
+        enum: ['IT', 'HR'],
+        required: true
+    },
+
     userName: {
         type: String,
         default: null
+    },
+
+    priority: {
+        type: String,
+        enum: ['low', 'medium', 'high'],
+        default: 'medium'
+    },
+
+    completed: {
+        type: Boolean,
+        default: false
     },
 
     userId: {

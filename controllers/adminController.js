@@ -1,5 +1,6 @@
 const User = require('../models/user')
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const getUsers = async (req, res) => {
     try {
@@ -22,7 +23,7 @@ const getUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
     try {
-        const { email, password } = req.body
+        const { email, password, roles } = req.body
 
         if (!email || !password) {
             return res.status(400).json({
@@ -40,7 +41,14 @@ const createUser = async (req, res) => {
             })
         }
 
-        const newUser = new User(req.body)
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        const newUser = new User({
+            email: email,
+            password: hashedPassword,
+            roles: roles
+        })
+
         await newUser.save()
         
         return res.status(201).json({

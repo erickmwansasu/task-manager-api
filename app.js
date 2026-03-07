@@ -31,11 +31,11 @@ const rolesList = require('./config/rolesList')
 
 app.use(authenticate)
 
-app.use('/api/v1', authRoutes)
-app.use('/api/v1', taskRoutes)
-app.use('/api/v1', userRoutes)
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/task', taskRoutes)
+app.use('/api/v1/user', userRoutes)
 
-app.use('/api/v1', authorize(rolesList.admin), adminRoutes)
+app.use('/api/v1/admin', authorize(rolesList.admin), adminRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server is running on PORT ${PORT}.`)

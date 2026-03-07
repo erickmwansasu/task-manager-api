@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
 
     department: {
         type: String,
+        enum: ['IT', 'HR'],
         default: null
     },
 

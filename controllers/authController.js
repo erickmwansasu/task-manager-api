@@ -80,6 +80,7 @@ const handleUserLogin = async (req, res) => {
           email: email,
           roles: user.roles,
           fullName: user.fullName,
+          department: user.department,
           phone: user.phone,
           id: user._id,
         },
@@ -118,6 +119,7 @@ const handleUserLogin = async (req, res) => {
         email: user.email,
         roles: user.roles,
         fullName: user.fullName,
+        department: user.department,
         id: user._id
       },
     });
