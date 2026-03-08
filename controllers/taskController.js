@@ -18,14 +18,6 @@ const getTasks = async (req, res) => {
     if (isAuthorized) {
         const allTasks = await Task.find().sort({ createdAt: -1 })
 
-        return res.status(200).json({
-            success: true,
-            message: 'Found all tasks',
-            data: allTasks
-        })
-    } else {
-        const allTasks = await Task.find({ userId }).sort({ createdAt: -1 })
-
         if (!allTasks.length) {
             return res.status(200).json({
                 success: true,
@@ -35,7 +27,7 @@ const getTasks = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: 'Your tasks:',
+            message: 'Found all tasks',
             data: allTasks
         })
     }
@@ -44,7 +36,7 @@ const getTasks = async (req, res) => {
     console.error(error)
     return res.status(500).json({
         success: false,
-        message: 'An error has occured!'
+        message: 'Internal server error!'
     })
    }
 }
@@ -246,6 +238,67 @@ const markIncomplete = async (req, res) => {
     }
 }
 
+const filterComplete = async (req, res) => {
+    try {
+        const { roles } = req.user
+        const allowedRoles = [ 5050, 5005 ]
+
+        const isAuthorized = roles.some(role => allowedRoles.includes(role))
+
+        if (!isAuthorized) {
+            return res.status(401).json({
+                success: false,
+                message: 'You do not permission to perform this action'
+            })
+        }
+
+        const tasks = await Task.find({ completed: true }).sort({ createdAt: -1 })
+
+        return res.status(200).json({
+            success: true,
+            message: 'Completed tasks:',
+            data: tasks
+        })
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            succes: false,
+            message: 'Internal server error'
+        })
+    }
+}
+
+const filterIncomplete = async (req, res) => {
+    try {
+        const { roles } = req.user
+        const allowedRoles = [ 5050, 5005 ]
+
+        const isAuthorized = roles.some(role => allowedRoles.includes(role))
+
+        if (!isAuthorized) {
+            return res.status(401).json({
+                success: false,
+                message: 'You do not permission to perform this action'
+            })
+        }
+
+        const tasks = await Task.find({ completed: false }).sort({ createdAt: -1 })
+
+        return res.status(200).json({
+            success: true,
+            message: 'Completed tasks:',
+            data: tasks
+        })
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(500).json({
+
+        })
+    }
+}
+
 const deleteTask = async (req, res) => {
     try {
         const id = req.params.id
@@ -299,5 +352,7 @@ module.exports = {
     getTaskById,
     markComplete,
     markIncomplete,
+    filterComplete,
+    filterIncomplete,
     deleteTask
 }
